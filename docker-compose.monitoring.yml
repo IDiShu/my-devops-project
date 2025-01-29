@@ -1,0 +1,45 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+    networks:
+      - logging
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.17.10
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5001:5000"
+    networks:
+      - logging
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.10
+    ports:
+      - "5601:5601"
+    networks:
+      - logging
+
+networks:
+  monitoring:
+  logging:

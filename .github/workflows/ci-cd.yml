@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3  # Обновлено на v3 для последней версии
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3  # Обновлено на v3 для последней версии
       with:
         python-version: '3.9'
 
@@ -35,7 +35,8 @@ jobs:
     - name: Login to Docker Hub
       run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
+    - name: Tag Docker image
+      run: docker tag my-devops-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-devops-app:latest
+
     - name: Push Docker image
-      run: |
-        docker tag my-devops-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-devops-app:latest
-        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-devops-app:latest
+      run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-devops-app:latest

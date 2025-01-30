@@ -1,166 +1,61 @@
-# my-devops-project
+---
 
-Создание простого веб-приложения (на Python/Flask).
+## **Описание проекта**  
 
-Контейнеризацию приложения с помощью Docker.
+Этот проект представляет собой веб-приложение, вероятно, написанное на Python. Оно использует шаблоны (директория `templates`) и стили (директория `static/css`) для построения фронтенда.  
 
-Настройку CI/CD с использованием GitHub Actions.
+**Дополнительные возможности проекта:**  
+1. **Docker:**  
+   - `Dockerfile` и `docker-compose.yml` используются для создания контейнеров для запуска приложения.  
+   - Файл `docker-compose.monitoring.yml` предназначен для настройки мониторинга.  
 
-Оркестрацию контейнеров с помощью Docker Compose.
+2. **Мониторинг и логирование:**  
+   - Настроены файлы `logstash.conf` и `prometheus.yml`, которые показывают, что проект использует Logstash и Prometheus для сбора метрик и логов.  
 
-Мониторинг и логирование (опционально, если есть время).
+3. **Зависимости:**  
+   - Зависимости указаны в `requirements.txt`, которые необходимо установить для локального запуска без Docker.  
 
-Шаг 1: Создание простого веб-приложения
-Установи Python и Flask, если они еще не установлены:
+---
 
-bash
-Copy
-sudo apt-get update
-sudo apt-get install python3 python3-pip
-pip3 install Flask
-Создай директорию для проекта:
+## **Как запускать проект?**  
 
-bash
-Copy
-mkdir my-devops-project
-cd my-devops-project
-Создай файл app.py с простым веб-приложением на Flask:
+1. **С использованием Docker:**  
+   Убедитесь, что Docker и Docker Compose установлены. Затем:  
+   - Для запуска приложения выполните:  
+     ```bash
+     docker-compose up --build
+     ```  
+   - Для мониторинга с использованием `docker-compose.monitoring.yml`:  
+     ```bash
+     docker-compose -f docker-compose.monitoring.yml up
+     ```  
 
-python
-Copy
-from flask import Flask
+2. **Локально без Docker:**  
+   - Установите Python и зависимости:  
+     ```bash
+     pip install -r requirements.txt
+     ```  
+   - Запустите приложение:  
+     ```bash
+     python app.py
+     ```  
 
-app = Flask(__name__)
+---
 
-@app.route('/')
-def hello():
-    return "Hello, DevOps World!"
+## **Для чего нужен Docker?**  
+- **Изоляция:** Все зависимости и окружение запускаются в контейнере.  
+- **Масштабируемость:** Упрощает развертывание в продакшене.  
+- **Мониторинг:** `docker-compose.monitoring.yml` показывает, что приложение поддерживает сбор данных о метриках и логах.  
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-Запусти приложение:
+---
 
-bash
-Copy
-python3 app.py
-Перейди в браузере по адресу http://localhost:5000, чтобы убедиться, что приложение работает.
+## **Для чего нужны файлы `ci-cd.yml`?**  
 
-Шаг 2: Контейнеризация приложения с помощью Docker
-Создай файл Dockerfile в корневой директории проекта:
+В директории `.github/workflows` находятся файлы конфигурации для GitHub Actions:  
+1. **Автоматизация тестирования и сборки:**  
+   Эти файлы автоматически запускают проверки, сборку Docker-образов и тестирование при каждом коммите.  
 
-Dockerfile
-Copy
-# Используем официальный образ Python
-FROM python:3.9-slim
+2. **Деплой и мониторинг:**  
+   Возможно, настроен деплой собранного образа в облако или другой сервер.  
 
-# Устанавливаем рабочую директорию
-WORKDIR /app
-
-# Копируем зависимости
-COPY requirements.txt .
-
-# Устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Копируем исходный код
-COPY . .
-
-# Открываем порт 5000
-EXPOSE 5000
-
-# Запускаем приложение
-CMD ["python", "app.py"]
-Создай файл requirements.txt:
-
-Copy
-Flask==2.0.1
-Собери Docker-образ:
-
-bash
-Copy
-docker build -t my-devops-app .
-Запусти контейнер:
-
-bash
-Copy
-docker run -d -p 5000:5000 my-devops-app
-Проверь, что приложение работает по адресу http://localhost:5000.
-
-Шаг 3: Настройка CI/CD с использованием GitHub Actions
-Создай репозиторий на GitHub и загрузи туда свой проект.
-
-Создай директорию .github/workflows в корне проекта:
-
-bash
-Copy
-mkdir -p .github/workflows
-Создай файл ci-cd.yml в директории .github/workflows:
-
-yaml
-Copy
-name: CI/CD Pipeline
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run tests
-      run: |
-        python -m unittest discover
-
-    - name: Build Docker image
-      run: docker build -t my-devops-app .
-
-    - name: Login to Docker Hub
-      run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-
-    - name: Push Docker image
-      run: |
-        docker tag my-devops-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-devops-app:latest
-        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-devops-app:latest
-Добавь секреты DOCKER_HUB_USERNAME и DOCKER_HUB_TOKEN в настройках репозитория на GitHub.
-
-Шаг 4: Оркестрация контейнеров с помощью Docker Compose
-Создай файл docker-compose.yml:
-
-yaml
-Copy
-version: '3'
-services:
-  web:
-    image: my-devops-app
-    build: .
-    ports:
-      - "5000:5000"
-Запусти приложение с помощью Docker Compose:
-
-bash
-Copy
-docker-compose up -d
-Проверь, что приложение работает по адресу http://localhost:5000.
-
-Шаг 5: Мониторинг и логирование (опционально)
-Добавь сервис для мониторинга, например, Prometheus и Grafana.
-
-Настрой сбор логов с помощью ELK-стека (Elasticsearch, Logstash, Kibana) или Fluentd.
+---

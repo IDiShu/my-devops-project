@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 
+
 app = Flask(__name__)
 
 # Настройки базы данных (SQLite)

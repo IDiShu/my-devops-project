@@ -60,6 +60,39 @@
 
 ---
 
+## ** Настройка лимита запросов с помощью Flask-Limiter **
+
+Установи библиотеку:
+```bash
+pip install Flask-Limiter
+``` 
+Пример использования: 
+```bash
+from flask import Flask
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+app = Flask(__name__)
+limiter = Limiter(get_remote_address, app=app)
+
+@app.route("/login")
+@limiter.limit("5 per minute")  # Ограничиваем 5 запросами в минуту
+def login():
+    return "Login page"
+``` 
+
+---
+
+## **Интеграция Google reCAPTCHA для защиты от ботов**
+
+1. Зарегистрируй свой сайт на Google reCAPTCHA.
+2. Получи site key и secret key.
+
+После установи библиотеку для работы с reCAPTCHA:
+```bash
+pip install flask-wtf
+``` 
+
 ## **Для чего мы добавили reCAPTCHA:**
 
 1. **Защита от спама:** Защищает форму отправки данных от ботов, которые могут массово отправлять ложные или спам-сообщения.
